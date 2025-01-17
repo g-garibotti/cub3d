@@ -6,7 +6,7 @@
 /*   By: ggaribot <ggaribot@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/17 12:59:15 by ggaribot          #+#    #+#             */
-/*   Updated: 2025/01/17 14:52:56 by ggaribot         ###   ########.fr       */
+/*   Updated: 2025/01/17 15:23:32 by ggaribot         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,7 +26,7 @@ static int	parse_rgb_values(char *str, int *r, int *g, int *b)
 	split = ft_split(str, ',');
 	if (!split || !split[0] || !split[1] || !split[2] || split[3])
 	{
-		free_split(split);
+		ft_free_split(split);
 		return (0);
 	}
 	valid = 1;
@@ -45,7 +45,7 @@ static int	parse_rgb_values(char *str, int *r, int *g, int *b)
 	temp = ft_itoa(*b);
 	valid &= (temp && ft_strcmp(temp, split[2]) == 0);
 	free(temp);
-	free_split(split);
+	ft_free_split(split);
 	return (valid);
 }
 
@@ -59,12 +59,12 @@ int	parse_color(char *line, t_map *map)
 	split = ft_split(line, ' ');
 	if (!split || !split[1] || ft_strlen(split[0]) != 1)
 	{
-		free_split(split);
+		ft_free_split(split);
 		return (0);
 	}
 	if (!parse_rgb_values(split[1], &r, &g, &b) || !is_valid_rgb(r, g, b))
 	{
-		free_split(split);
+		ft_free_split(split);
 		return (0);
 	}
 	if (split[0][0] == 'F')
@@ -73,10 +73,10 @@ int	parse_color(char *line, t_map *map)
 		map->ceil_color = (r << 16) | (g << 8) | b;
 	else
 	{
-		free_split(split);
+		ft_free_split(split);
 		return (0);
 	}
-	free_split(split);
+	ft_free_split(split);
 	return (1);
 }
 
@@ -103,10 +103,10 @@ int	parse_texture(char *line, t_map *map)
 	split = ft_split(line, ' ');
 	if (!split || !split[1])
 	{
-		free_split(split);
+		ft_free_split(split);
 		return (0);
 	}
 	result = set_texture_path(split[0], split[1], map);
-	free_split(split);
+	ft_free_split(split);
 	return (result);
 }

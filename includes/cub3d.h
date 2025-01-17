@@ -1,14 +1,15 @@
 #ifndef CUB3D_H
 # define CUB3D_H
 
-# include "libft/libft.h"
-# include "minilibx-linux/mlx.h"
+# include "../libft/libft.h"
+# include "../minilibx-linux/mlx.h"
 # include <fcntl.h>
 # include <math.h>
 # include <stdio.h>
 # include <stdlib.h>
 # include <string.h>
 
+/* Constants */
 # define S_W 1900             // screen width
 # define S_H 1000             // screen height
 # define TILE_SIZE 30         // tile size
@@ -18,6 +19,7 @@
 # define PI 3.14159265359
 # define RAD (PI / 180)
 
+/* Structures */
 typedef struct s_player
 {
 	double pos_x;     // player x position (using double for smooth movement)
@@ -83,17 +85,30 @@ typedef struct s_game
 	t_ray *rays;     // array of rays
 }		t_game;
 
-// Parsing functions
+/* Function Prototypes */
+
+// Core parsing functions
 int		parse_file(char *filename, t_game *game);
 int		validate_map(t_map *map, t_player *player);
 int		parse_texture(char *line, t_map *map);
 int		parse_color(char *line, t_map *map);
+
+// Map parsing functions
+int		parse_map(char *filename, t_game *game);
+int		parse_map_line(char *line, t_map *map, int y);
+int		count_map_rows(char *filename);
+int		get_map_width(char *filename);
+
+// Parser utility functions
+int		is_empty_line(char *line);
+char	*trim_whitespace(char *str);
 int		check_file_extension(char *filename);
 int		check_texture_file(char *path);
 int		is_valid_number(char *str);
 int		validate_textures(t_map *map);
 int		check_file_empty(char *filename);
 int		check_map_size(t_map *map);
+void	free_split(char **split);
 
 // Ray casting functions
 void	cast_rays(t_game *game);

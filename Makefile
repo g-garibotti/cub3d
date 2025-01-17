@@ -23,37 +23,42 @@ MLX = minilibx-linux/libmlx.a
 all: $(NAME)
 
 $(NAME): $(OBJS) $(LIBFT) $(MLX)
-	@$(CC) $(CFLAGS) $(OBJS) -Llibft -lft -Lminilibx-linux $(MLXFLAGS) -o $(NAME)
-	@echo "$(BLUE)$(NAME) created!$(RESET)"
+	@echo "$(YELLOW)Linking $(NAME)...$(RESET)"
+	$(CC) $(CFLAGS) $(OBJS) -Llibft -lft -Lminilibx-linux $(MLXFLAGS) -o $(NAME) || \
+		(echo "$(RED)Linking failed!$(RESET)" && exit 1)
+	@echo "$(GREEN)$(NAME) successfully created!$(RESET)"
 
 $(OBJS_DIR)/%.o: %.c
 	@mkdir -p $(@D)
-	@printf "$(YELLOW)Compiling $<... $(RESET)"
-	@if $(CC) $(CFLAGS) -MMD -MP -I./includes -Ilibft -Iminilibx-linux -c $< -o $@ 2>/dev/null; then 		printf "$(GREEN)Done!$(RESET)\n"; 	else 		printf "$(RED)Failed!$(RESET)\n"; 		exit 1; 	fi
+	@echo "$(YELLOW)Compiling $<...$(RESET)"
+	@$(CC) $(CFLAGS) -MMD -MP -I./includes -Ilibft -Iminilibx-linux -c $< -o $@ || \
+		(echo "$(RED)Compilation of $< failed!$(RESET)" && exit 1)
 
 $(MLX):
 	@echo "$(YELLOW)Compiling MLX...$(RESET)"
-	@$(MAKE) -C minilibx-linux > /dev/null 2>&1
-	@echo "$(GREEN)MLX compilation done!$(RESET)"
+	@$(MAKE) -C minilibx-linux || \
+		(echo "$(RED)MLX compilation failed!$(RESET)" && exit 1)
+	@echo "$(GREEN)MLX compilation successful!$(RESET)"
 
 $(LIBFT):
 	@echo "$(YELLOW)Compiling libft...$(RESET)"
-	@$(MAKE) -C libft > /dev/null 2>&1
-	@echo "$(GREEN)libft compilation done!$(RESET)"
+	@$(MAKE) -C libft || \
+		(echo "$(RED)Libft compilation failed!$(RESET)" && exit 1)
+	@echo "$(GREEN)Libft compilation successful!$(RESET)"
 
 clean:
-	@echo "$(YELLOW)Cleaning up...$(RESET)"
-	@$(MAKE) -C libft clean > /dev/null
-	@$(MAKE) -C minilibx-linux clean > /dev/null
+	@echo "$(YELLOW)Cleaning object files...$(RESET)"
+	@$(MAKE) -C libft clean
+	@$(MAKE) -C minilibx-linux clean
 	@rm -rf $(OBJS_DIR)
-	@echo "$(GREEN)Clean done!$(RESET)"
+	@echo "$(GREEN)Clean complete!$(RESET)"
 
 fclean: clean
-	@echo "$(YELLOW)Full cleanup...$(RESET)"
-	@$(MAKE) -C libft fclean > /dev/null
-	@$(MAKE) -C minilibx-linux clean > /dev/null
+	@echo "$(YELLOW)Removing executables...$(RESET)"
+	@$(MAKE) -C libft fclean
+	@$(MAKE) -C minilibx-linux clean
 	@rm -f $(NAME)
-	@echo "$(GREEN)Full cleanup done!$(RESET)"
+	@echo "$(GREEN)Full cleanup complete!$(RESET)"
 
 re: fclean all
 

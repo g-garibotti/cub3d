@@ -6,7 +6,7 @@
 /*   By: ggaribot <ggaribot@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/17 12:58:34 by ggaribot          #+#    #+#             */
-/*   Updated: 2025/01/17 14:53:42 by ggaribot         ###   ########.fr       */
+/*   Updated: 2025/01/17 15:27:12 by ggaribot         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -93,11 +93,9 @@ int	parse_map(char *filename, t_game *game)
 
 	if (!init_map(&game->map, filename))
 		return (0);
-	if ((fd = open(filename, O_RDONLY)) < 0)
-	{
-		clean_game(game); // Add cleanup
+	fd = open(filename, O_RDONLY);
+	if (fd < 0)
 		return (0);
-	}
 	y = 0;
 	while ((line = get_next_line(fd)) && y < game->map.height)
 	{
@@ -106,7 +104,8 @@ int	parse_map(char *filename, t_game *game)
 			if (!parse_map_line(line, &game->map, y))
 			{
 				free(line);
-				close(fd); // Close fd before return (return (0));
+				close(fd);
+				return (0);
 			}
 			y++;
 		}
