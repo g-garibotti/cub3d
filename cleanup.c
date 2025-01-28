@@ -6,7 +6,7 @@
 /*   By: ggaribot <ggaribot@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/17 14:14:27 by ggaribot          #+#    #+#             */
-/*   Updated: 2025/01/17 14:23:42 by ggaribot         ###   ########.fr       */
+/*   Updated: 2025/01/28 09:52:51 by ggaribot         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -111,5 +111,4 @@ int	clean_exit_msg(char *msg, t_game *game)
 	if (game)
 		clean_game(game);
 	exit(1);
-	return (1);
 }

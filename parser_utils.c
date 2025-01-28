@@ -6,7 +6,7 @@
 /*   By: ggaribot <ggaribot@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/17 12:57:09 by ggaribot          #+#    #+#             */
-/*   Updated: 2025/01/17 13:15:56 by ggaribot         ###   ########.fr       */
+/*   Updated: 2025/01/28 10:08:03 by ggaribot         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,15 +24,29 @@ int	is_empty_line(char *line)
 
 char	*trim_whitespace(char *str)
 {
+	char	*start;
 	char	*end;
+	char	*result;
+	int		len;
 
-	while (*str == ' ' || *str == '\t')
-		str++;
-	end = str + ft_strlen(str) - 1;
-	while (end > str && (*end == ' ' || *end == '\t' || *end == '\n'))
+	if (!str)
+		return (NULL);
+	// Find start
+	start = str;
+	while (*start && (*start == ' ' || *start == '\t'))
+		start++;
+	// Find end
+	end = start + ft_strlen(start) - 1;
+	while (end > start && (*end == ' ' || *end == '\t' || *end == '\n'))
 		end--;
-	*(end + 1) = '\0';
-	return (str);
+	// Calculate length and allocate
+	len = (end - start) + 2;
+	result = malloc(len);
+	if (!result)
+		return (NULL);
+	// Copy and null terminate
+	ft_strlcpy(result, start, len);
+	return (result);
 }
 
 int	check_file_extension(char *filename)

@@ -6,7 +6,7 @@
 /*   By: ggaribot <ggaribot@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/17 13:16:23 by ggaribot          #+#    #+#             */
-/*   Updated: 2025/01/17 14:52:36 by ggaribot         ###   ########.fr       */
+/*   Updated: 2025/01/28 10:09:53 by ggaribot         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -132,16 +132,21 @@ static int	parse_game_map(char *filename, t_game *game)
 int	parse_file(char *filename, t_game *game)
 {
 	if (!filename || !game)
-		return (clean_exit_msg("Invalid parameters", NULL));
+		clean_exit_msg("Invalid parameters", NULL);
 	if (init_parsing(filename, game))
 		return (1);
+	printf("IN PARSE FILE1\n");
 	if (parse_game_elements(filename, game))
 		return (1);
+	printf("IN PARSE FILE2\n");
 	if (!validate_textures(&game->map))
 		return (1);
+	printf("IN PARSE FILE3\n");
 	if (parse_game_map(filename, game))
 		return (1);
+	printf("IN PARSE FILE4\n");
 	if (!check_map_size(&game->map))
 		return (1);
+	printf("IN PARSE FILE5\n");
 	return (0);
 }
