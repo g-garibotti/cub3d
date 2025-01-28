@@ -6,7 +6,7 @@
 /*   By: ggaribot <ggaribot@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/17 13:00:00 by ggaribot          #+#    #+#             */
-/*   Updated: 2025/01/28 16:02:55 by ggaribot         ###   ########.fr       */
+/*   Updated: 2025/01/28 16:30:27 by ggaribot         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,22 +20,32 @@ static int is_wall(char c)
 
 static int check_surroundings(t_map *map, int x, int y)
 {
+    size_t line_len;
+    size_t wall_pos;
+    const char *first_wall;
+
     // Check if position is at map boundaries
     if (x == 0 || x == map->width - 1 || y == 0 || y == map->height - 1)
         return (0);
 
-    // For '0' or player positions, check that they're not touching any spaces
-    if (map->grid[y][x - 1] == ' ' || 
-        map->grid[y][x + 1] == ' ' || 
-        map->grid[y - 1][x] == ' ' || 
-        map->grid[y + 1][x] == ' ' ||
-        map->grid[y - 1][x - 1] == ' ' || 
-        map->grid[y - 1][x + 1] == ' ' || 
-        map->grid[y + 1][x - 1] == ' ' || 
-        map->grid[y + 1][x + 1] == ' ')
-        return (0);
+    line_len = ft_strlen(map->grid[y]);
+    first_wall = ft_strchr(map->grid[y], '1');
+    wall_pos = first_wall ? (size_t)(first_wall - map->grid[y]) : line_len;
 
-    return (1);
+    // For leading spaces, we only need to check right, up, and down
+    if ((size_t)x < wall_pos)
+    {
+        // This is in the leading spaces section, no need to check left
+        return (map->grid[y][x + 1] != ' ' && 
+                map->grid[y - 1][x] != ' ' && 
+                map->grid[y + 1][x] != ' ');
+    }
+
+    // Normal check for non-leading spaces
+    return (map->grid[y][x - 1] != ' ' && 
+            map->grid[y][x + 1] != ' ' && 
+            map->grid[y - 1][x] != ' ' && 
+            map->grid[y + 1][x] != ' ');
 }
 
 static void	set_player_direction_ns(t_player *player)
@@ -102,12 +112,13 @@ int validate_map(t_map *map, t_player *player)
             if (map->grid[y][x] == '0' || ft_strchr("NSEW", map->grid[y][x]))
             {
                 if (!check_surroundings(map, x, y))
-                    return (0);
+                    return (0);  // Invalid surroundings
+                
                 if (ft_strchr("NSEW", map->grid[y][x]))
                 {
                     player_count++;
                     player->orientation = map->grid[y][x];
-                    set_player_position(player, x, y);
+                    set_player_position(player, x, y);  // Set player position
                 }
             }
         }

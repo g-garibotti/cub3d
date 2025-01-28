@@ -6,7 +6,7 @@
 /*   By: ggaribot <ggaribot@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/17 12:58:34 by ggaribot          #+#    #+#             */
-/*   Updated: 2025/01/28 16:02:04 by ggaribot         ###   ########.fr       */
+/*   Updated: 2025/01/28 16:23:31 by ggaribot         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,6 +36,8 @@ static int calculate_map_dimensions(t_list *map_lines, int *width, int *height)
 {
     t_list *current;
     int max_width;
+    int line_len;
+    char *line;
     
     max_width = 0;
     *height = 0;
@@ -43,9 +45,11 @@ static int calculate_map_dimensions(t_list *map_lines, int *width, int *height)
     current = map_lines;
     while (current)
     {
-        char *line = (char *)current->content;
-        int line_len = ft_strlen(line);
-        max_width = line_len > max_width ? line_len : max_width;
+        line = (char *)current->content;
+        // Count actual content length including spaces
+        line_len = ft_strlen(line);
+        if (line_len > max_width)
+            max_width = line_len;
         (*height)++;
         current = current->next;
     }
