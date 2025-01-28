@@ -6,7 +6,7 @@
 /*   By: ggaribot <ggaribot@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/17 12:57:09 by ggaribot          #+#    #+#             */
-/*   Updated: 2025/01/28 10:08:03 by ggaribot         ###   ########.fr       */
+/*   Updated: 2025/01/28 10:52:25 by ggaribot         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -59,24 +59,39 @@ int	check_file_extension(char *filename)
 	return (1);
 }
 
-int	count_map_rows(char *filename)
+int count_map_rows(char *filename)
 {
-	int		fd;
-	int		height;
-	char	*line;
+    int     fd;
+    int     height;
+    char    *line;
+    int     map_started;
 
-	height = 0;
-	fd = open(filename, O_RDONLY);
-	if (fd < 0)
-		return (-1);
-	while ((line = get_next_line(fd)))
-	{
-		if (!is_empty_line(line))
-			height++;
-		free(line);
-	}
-	close(fd);
-	return (height);
+    height = 0;
+    map_started = 0;
+    fd = open(filename, O_RDONLY);
+    if (fd < 0)
+        return (-1);
+    while ((line = get_next_line(fd)))
+    {
+        if (!is_empty_line(line))
+        {
+            char *trimmed = trim_whitespace(line);
+            if (trimmed && (trimmed[0] == '1' || trimmed[0] == '0' || trimmed[0] == ' '))
+            {
+                map_started = 1;
+                height++;
+            }
+            else if (map_started)  // Invalid line after map started
+            {
+                free(line);
+                close(fd);
+                return (-1);
+            }
+        }
+        free(line);
+    }
+    close(fd);
+    return (height);
 }
 
 int	get_map_width(char *filename)
@@ -85,6 +100,7 @@ int	get_map_width(char *filename)
 	int		width;
 	int		len;
 	char	*line;
+	char	*trimmed;
 
 	width = 0;
 	fd = open(filename, O_RDONLY);
@@ -94,9 +110,13 @@ int	get_map_width(char *filename)
 	{
 		if (!is_empty_line(line))
 		{
-			len = ft_strlen(line);
-			if (len > width)
-				width = len;
+			trimmed = trim_whitespace(line);
+			if (trimmed)
+			{
+				len = ft_strlen(trimmed);
+				if (len > width)
+					width = len;
+			}
 		}
 		free(line);
 	}
