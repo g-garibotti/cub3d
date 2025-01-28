@@ -109,6 +109,9 @@ int		validate_textures(t_map *map);
 int		check_file_empty(char *filename);
 int		check_map_size(t_map *map);
 void	free_split(char **split);
+int	check_required_elements(t_map *map);
+int	parse_element(char *line, t_map *map);
+//int is_map_line(char *line);
 
 // Ray casting functions
 void	cast_rays(t_game *game);

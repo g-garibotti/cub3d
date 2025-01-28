@@ -6,7 +6,7 @@
 /*   By: ggaribot <ggaribot@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/17 12:57:09 by ggaribot          #+#    #+#             */
-/*   Updated: 2025/01/28 10:52:25 by ggaribot         ###   ########.fr       */
+/*   Updated: 2025/01/28 14:08:39 by ggaribot         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -64,62 +64,109 @@ int count_map_rows(char *filename)
     int     fd;
     int     height;
     char    *line;
-    int     map_started;
+    int     map_section;
+    int     empty_after_map;
 
     height = 0;
-    map_started = 0;
+    map_section = 0;
+    empty_after_map = 0;
     fd = open(filename, O_RDONLY);
     if (fd < 0)
         return (-1);
+
+    // Skip non-map content (textures and colors)
     while ((line = get_next_line(fd)))
     {
-        if (!is_empty_line(line))
+        // Skip empty lines and texture/color configurations
+        if (is_empty_line(line))
         {
-            char *trimmed = trim_whitespace(line);
-            if (trimmed && (trimmed[0] == '1' || trimmed[0] == '0' || trimmed[0] == ' '))
+            if (map_section)
+                empty_after_map = 1;
+            free(line);
+            continue;
+        }
+
+        char *trimmed = trim_whitespace(line);
+        if (trimmed)
+        {
+            // Check if this is a map line (starts with 0, 1, or space)
+            if (trimmed[0] == '1' || trimmed[0] == '0' || trimmed[0] == ' ')
             {
-                map_started = 1;
+                if (empty_after_map) // Found a map line after empty line
+                {
+                    free(trimmed);
+                    free(line);
+                    close(fd);
+                    return (-1);
+                }
+                map_section = 1;
                 height++;
             }
-            else if (map_started)  // Invalid line after map started
+            else if (map_section) // Found non-map line after map started
             {
+                free(trimmed);
                 free(line);
                 close(fd);
                 return (-1);
             }
+            free(trimmed);
         }
         free(line);
     }
     close(fd);
-    return (height);
+    return (height > 0 ? height : -1);
 }
 
-int	get_map_width(char *filename)
+int get_map_width(char *filename)
 {
-	int		fd;
-	int		width;
-	int		len;
-	char	*line;
-	char	*trimmed;
+    int     fd;
+    int     width;
+    int     len;
+    char    *line;
+    char    *trimmed;
+    int     in_map_section;
+    int     line_count;
 
-	width = 0;
-	fd = open(filename, O_RDONLY);
-	if (fd < 0)
-		return (-1);
-	while ((line = get_next_line(fd)))
-	{
-		if (!is_empty_line(line))
-		{
-			trimmed = trim_whitespace(line);
-			if (trimmed)
-			{
-				len = ft_strlen(trimmed);
-				if (len > width)
-					width = len;
-			}
-		}
-		free(line);
-	}
-	close(fd);
-	return (width);
+    width = 0;
+    in_map_section = 0;
+    line_count = 0;
+    fd = open(filename, O_RDONLY);
+    if (fd < 0)
+        return (-1);
+
+    // Skip non-map content
+    while ((line = get_next_line(fd)))
+    {
+        if (is_empty_line(line))
+        {
+            free(line);
+            continue;
+        }
+
+        trimmed = trim_whitespace(line);
+        if (trimmed)
+        {
+            // Check if this is the start of map section
+            if ((trimmed[0] == '1' || trimmed[0] == '0' || trimmed[0] == ' ') && !in_map_section)
+            {
+                in_map_section = 1;
+                len = ft_strlen(trimmed);
+                if (len > width)
+                    width = len;
+                line_count++;
+            }
+            // Continue counting width if we're in map section
+            else if (in_map_section)
+            {
+                len = ft_strlen(trimmed);
+                if (len > width)
+                    width = len;
+                line_count++;
+            }
+            free(trimmed);
+        }
+        free(line);
+    }
+    close(fd);
+    return (line_count > 0 ? width : -1);
 }

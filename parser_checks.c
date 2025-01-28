@@ -6,23 +6,32 @@
 /*   By: ggaribot <ggaribot@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/17 14:27:04 by ggaribot          #+#    #+#             */
-/*   Updated: 2025/01/17 14:47:31 by ggaribot         ###   ########.fr       */
+/*   Updated: 2025/01/28 16:17:14 by ggaribot         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "includes/cub3d.h"
 
-int	check_texture_file(char *path)
+int check_texture_file(char *path)
 {
-	int	fd;
+    int     fd;
+    char    *extension;
 
-	if (!path)
-		return (0);
-	fd = open(path, O_RDONLY);
-	if (fd < 0)
-		return (0);
-	close(fd);
-	return (1);
+    if (!path)
+        return (0);
+
+    // Check file extension
+    extension = ft_strrchr(path, '.');
+    if (!extension || ft_strcmp(extension, ".xpm") != 0)
+        return (0);
+
+    // Try to open the file
+    fd = open(path, O_RDONLY);
+    if (fd < 0)
+        return (0);
+    
+    close(fd);
+    return (1);
 }
 
 int	is_valid_number(char *str)

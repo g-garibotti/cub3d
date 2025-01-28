@@ -6,20 +6,36 @@
 /*   By: ggaribot <ggaribot@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/17 13:00:00 by ggaribot          #+#    #+#             */
-/*   Updated: 2025/01/17 13:16:00 by ggaribot         ###   ########.fr       */
+/*   Updated: 2025/01/28 16:02:55 by ggaribot         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "includes/cub3d.h"
-
-static int	check_surroundings(t_map *map, int x, int y)
+ /*
+static int is_wall(char c)
 {
-	if (x == 0 || x == map->width - 1 || y == 0 || y == map->height - 1)
-		return (0);
-	if (map->grid[y][x - 1] == ' ' || map->grid[y][x + 1] == ' ' || map->grid[y
-		- 1][x] == ' ' || map->grid[y + 1][x] == ' ')
-		return (0);
-	return (1);
+    return (c == '1' || c == ' ');
+}
+*/
+
+static int check_surroundings(t_map *map, int x, int y)
+{
+    // Check if position is at map boundaries
+    if (x == 0 || x == map->width - 1 || y == 0 || y == map->height - 1)
+        return (0);
+
+    // For '0' or player positions, check that they're not touching any spaces
+    if (map->grid[y][x - 1] == ' ' || 
+        map->grid[y][x + 1] == ' ' || 
+        map->grid[y - 1][x] == ' ' || 
+        map->grid[y + 1][x] == ' ' ||
+        map->grid[y - 1][x - 1] == ' ' || 
+        map->grid[y - 1][x + 1] == ' ' || 
+        map->grid[y + 1][x - 1] == ' ' || 
+        map->grid[y + 1][x + 1] == ' ')
+        return (0);
+
+    return (1);
 }
 
 static void	set_player_direction_ns(t_player *player)
@@ -70,31 +86,31 @@ static void	set_player_position(t_player *player, int x, int y)
 	set_player_direction_ew(player);
 }
 
-int	validate_map(t_map *map, t_player *player)
+int validate_map(t_map *map, t_player *player)
 {
-	int	x;
-	int	y;
-	int	player_count;
+    int x;
+    int y;
+    int player_count;
 
-	player_count = 0;
-	y = -1;
-	while (++y < map->height)
-	{
-		x = -1;
-		while (++x < map->width)
-		{
-			if (map->grid[y][x] == '0' || ft_strchr("NSEW", map->grid[y][x]))
-			{
-				if (!check_surroundings(map, x, y))
-					return (0);
-				if (ft_strchr("NSEW", map->grid[y][x]))
-				{
-					player_count++;
-					player->orientation = map->grid[y][x];
-					set_player_position(player, x, y);
-				}
-			}
-		}
-	}
-	return (player_count == 1);
+    player_count = 0;
+    y = -1;
+    while (++y < map->height)
+    {
+        x = -1;
+        while (++x < map->width)
+        {
+            if (map->grid[y][x] == '0' || ft_strchr("NSEW", map->grid[y][x]))
+            {
+                if (!check_surroundings(map, x, y))
+                    return (0);
+                if (ft_strchr("NSEW", map->grid[y][x]))
+                {
+                    player_count++;
+                    player->orientation = map->grid[y][x];
+                    set_player_position(player, x, y);
+                }
+            }
+        }
+    }
+    return (player_count == 1);
 }
