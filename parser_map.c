@@ -6,20 +6,13 @@
 /*   By: ggaribot <ggaribot@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/17 12:58:34 by ggaribot          #+#    #+#             */
-/*   Updated: 2025/01/28 16:23:31 by ggaribot         ###   ########.fr       */
+/*   Updated: 2025/01/29 12:17:41 by ggaribot         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "includes/cub3d.h"
 
-static int is_map_character(char c)
-{
-    return (c == '0' || c == '1' || c == ' ' || 
-            c == 'N' || c == 'S' || c == 'E' || c == 'W');
-}
-
-
-static int is_valid_char(char c)
+static int is_map_char(char c)
 {
     return (c == '0' || c == '1' || c == ' ' || 
             c == 'N' || c == 'S' || c == 'E' || c == 'W');
@@ -113,7 +106,7 @@ int parse_map_line(char *line, t_map *map, int y)
     // Fill the line with the actual characters
     while (trimmed[x] && x < map->width)
     {
-        if (!is_valid_char(trimmed[x]))
+        if (!is_map_char(trimmed[x]))
         {
             ret = 0;
             break;
@@ -166,7 +159,7 @@ static int parse_map_content(t_list *map_lines, t_map *map)
         int x = 0;
         while (line[x] && x < map->width)
         {
-            if (is_map_character(line[x]))
+            if (is_map_char(line[x]))
                 map->grid[y][x] = line[x];
             x++;
         }
@@ -220,71 +213,81 @@ static int validate_map_continuity(t_list *map_lines)
     return 1;
 }
 
-int parse_file(char *filename, t_game *game)
+int parse_scene_elements(int fd, t_game *game)
 {
-    int fd;
     char *line;
-    t_list *map_lines = NULL;
     int parsing_map = 0;
 
-    fd = open(filename, O_RDONLY);
-    if (fd < 0)
-        return (clean_exit_msg("Cannot open file", NULL));
+    game->temp_map_line = NULL;
+    while ((line = get_next_line(fd)) && !parsing_map)
+    {
+        if (is_map_line(line))
+        {
+            if (!check_required_elements(&game->map))
+                clean_exit_msg("Missing required elements", game);
+            game->temp_map_line = line;  // Store in game structure
+            parsing_map = 1;
+            continue;
+        }
+        else  // Try to parse as texture or color
+        {
+            if (!parse_element(line, &game->map))
+                clean_exit_msg("Invalid scene element", game);
+            free(line);
+        }
+    }
+    return (0);
+}
 
+int parse_and_validate_map(int fd, t_game *game)
+{
+    t_list *map_lines = NULL;
+    char *line;
+
+    // Add the first map line to our list
+    if (game->temp_map_line)
+        ft_lstadd_back(&map_lines, ft_lstnew(ft_strdup(game->temp_map_line)));
+
+    // Collect remaining map lines
     while ((line = get_next_line(fd)))
     {
-        if (!parsing_map)
-        {
-            if (is_map_line(line))
-            {
-                if (!check_required_elements(&game->map))
-                {
-                    free(line);
-                    return (clean_exit_msg("Missing required elements", game));
-                }
-                parsing_map = 1;
-            }
-            else
-            {
-                if (!parse_element(line, &game->map))
-                {
-                    free(line);
-                    return (clean_exit_msg("Invalid element", game));
-                }
-            }
-        }
-
-        if (parsing_map)
+        if (!is_empty_line(line))
             ft_lstadd_back(&map_lines, ft_lstnew(ft_strdup(line)));
-
         free(line);
     }
 
-    // Validate map continuity before parsing content
+    // Validate map structure and content
     if (!validate_map_continuity(map_lines))
-    {
-        ft_lstclear(&map_lines, free);
-        return (clean_exit_msg("Invalid map: contains empty lines", game));
-    }
-
-    // Parse map content only if continuity check passes
-    if (parsing_map && map_lines)
-    {
-        if (!parse_map_content(map_lines, &game->map))
-        {
-            ft_lstclear(&map_lines, free);
-            return (clean_exit_msg("Invalid map", game));
-        }
-        
-        // Add player validation check
-        if (!validate_map(&game->map, &game->player))
-        {
-            ft_lstclear(&map_lines, free);
-            return (clean_exit_msg("Invalid map: missing or invalid player position", game));
-        }
-    }
+        clean_exit_msg("Invalid map: contains empty lines", game);
+    if (!parse_map_content(map_lines, &game->map))
+        clean_exit_msg("Invalid map structure", game);
+    if (!validate_map(&game->map, &game->player))
+        clean_exit_msg("Invalid map: player position error", game);
 
     ft_lstclear(&map_lines, free);
+    return (0);
+}
+
+int parse_file(char *file, t_game *game)
+{
+    int fd;
+
+    if (!check_file_extension(file))
+        clean_exit_msg("Invalid file extension", game);
+
+    fd = open(file, O_RDONLY);
+    if (fd < 0)
+        clean_exit_msg("Cannot open file", game);
+
+    // Parse scene elements (textures and colors)
+    parse_scene_elements(fd, game);
+    
+    // Parse and validate map
+    parse_and_validate_map(fd, game);
+    
+    // Success cleanup
+    free(game->temp_map_line);
+    game->temp_map_line = NULL;
     close(fd);
     return (0);
 }

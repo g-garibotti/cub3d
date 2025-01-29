@@ -6,7 +6,7 @@
 /*   By: ggaribot <ggaribot@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/17 13:15:08 by ggaribot          #+#    #+#             */
-/*   Updated: 2025/01/28 14:00:44 by ggaribot         ###   ########.fr       */
+/*   Updated: 2025/01/29 11:00:00 by ggaribot         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,12 +21,8 @@ int	main(int argc, char **argv)
 	ft_memset(&game, 0, sizeof(t_game));
 	//PARSING
 	if (parse_file(argv[1], &game))
-	{
-		printf("IN PARSE FILE BEFORE CLEAN\n");
 		clean_exit_msg("Parsing error", &game);
-		printf("AFTER CLEAN IN PARSE FILE\n");
-	}
-	printf("BEFORE CLEAN END\n");
+	printf("PARSING SUCCES\n");
 	// Continue with game initialization...
 	clean_game(&game);
 	return (0);

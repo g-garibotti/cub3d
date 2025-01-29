@@ -83,6 +83,7 @@ typedef struct s_game
 	t_player player; // player data
 	t_map map;       // map data
 	t_ray *rays;     // array of rays
+	char *temp_map_line; // temporary storage for map parsing
 }		t_game;
 
 /* Function Prototypes */

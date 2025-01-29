@@ -6,7 +6,7 @@
 /*   By: ggaribot <ggaribot@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/17 14:27:04 by ggaribot          #+#    #+#             */
-/*   Updated: 2025/01/28 16:17:14 by ggaribot         ###   ########.fr       */
+/*   Updated: 2025/01/29 11:49:37 by ggaribot         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -63,7 +63,7 @@ int	validate_textures(t_map *map)
 		return (clean_exit_msg("Invalid west texture", NULL));
 	return (1);
 }
-
+/*
 int	check_file_empty(char *filename)
 {
 	int		fd;
@@ -78,7 +78,7 @@ int	check_file_empty(char *filename)
 	if (bytes_read <= 0)
 		return (clean_exit_msg("File is empty", NULL));
 	return (0);
-}
+}*/
 
 int	check_map_size(t_map *map)
 {
